@@ -16,18 +16,23 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
-    public class ActivityPlaceholder extends PlaceholderExpansion {
+import static ru.fiarr4ik.playeractivityplaceholder.utils.FormatUtils.formatTime;
+
+public class ActivityPlaceholder extends PlaceholderExpansion {
 
         private final JavaPlugin plugin;
         private final HashMap<UUID, Location> lastLocations = new HashMap<>();
         private final HashMap<UUID, Long> idleTimes = new HashMap<>();
         private final HashMap<UUID, Long> activeTimes = new HashMap<>();
         private final HashMap<UUID, Long> onlineTimes = new HashMap<>();
+        private final HashMap<UUID, Long> afkStartTimes = new HashMap<>();
+        private final HashMap<UUID, String> playerNames = new HashMap<>();
+
         private ResourceBundle messages;
 
         public ActivityPlaceholder(JavaPlugin plugin) {
             this.plugin = plugin;
-            this.messages = ResourceBundle.getBundle("messages", Locale.ENGLISH); // Default language
+            this.messages = ResourceBundle.getBundle("messages", Locale.ENGLISH);
             Bukkit.getScheduler().runTaskTimer(plugin, this::updatePlayerActivityTime, 1L, 1L);
         }
 
@@ -47,12 +52,12 @@ import java.util.UUID;
 
         @Override
         public @NotNull String getAuthor() {
-            return "Fiarr4ik";
+            return "velier";
         }
 
         @Override
         public @NotNull String getVersion() {
-            return "0.0.3";
+            return "0.0.4";
         }
 
         @Override
@@ -62,8 +67,6 @@ import java.util.UUID;
             }
 
             String locale = "ru";
-            String language = player.getLocale(); //TODO
-
             this.messages = ResourceBundle.getBundle("messages", new Locale(locale));
 
             if (identifier.equals("afk_time")) {
@@ -105,26 +108,29 @@ import java.util.UUID;
 
                 onlineTimes.put(playerUUID, onlineTimes.getOrDefault(playerUUID, 0L) + 1L);
 
+                playerNames.putIfAbsent(playerUUID, player.getName());
+
                 if (lastLocation != null && lastLocation.getWorld().equals(currentLocation.getWorld())) {
                     if (lastLocation.distanceSquared(currentLocation) < 0.01) {
-                        idleTimes.put(playerUUID, idleTimes.getOrDefault(playerUUID, 0L) + 1L);
+                        long afkStartTime = afkStartTimes.getOrDefault(playerUUID, -1L);
+                        if (afkStartTime == -1L) {
+                            afkStartTimes.put(playerUUID, onlineTimes.get(playerUUID));
+                        } else {
+                            long elapsedTime = onlineTimes.get(playerUUID) - afkStartTime;
+                            if (elapsedTime >= 3600) {
+                                idleTimes.put(playerUUID, idleTimes.getOrDefault(playerUUID, 0L) + 1L);
+                            } else {
+                                activeTimes.put(playerUUID, activeTimes.getOrDefault(playerUUID, 0L) + 1L);
+                            }
+                        }
                     } else {
                         activeTimes.put(playerUUID, activeTimes.getOrDefault(playerUUID, 0L) + 1L);
+                        afkStartTimes.remove(playerUUID);
                     }
                 }
 
                 lastLocations.put(playerUUID, currentLocation);
             }
-        }
-
-        private String formatTime(long ticks) {
-            long totalSeconds = ticks / 20;
-            long days = totalSeconds / 86400;
-            long hours = (totalSeconds % 86400) / 3600;
-            long minutes = (totalSeconds % 3600) / 60;
-            long seconds = totalSeconds % 60;
-
-            return String.format("%d days, %02d:%02d:%02d", days, hours, minutes, seconds);
         }
 
         private List<Map.Entry<UUID, Long>> getTopPlayers(HashMap<UUID, Long> timeMap) {
@@ -137,10 +143,9 @@ import java.util.UUID;
             List<Map.Entry<UUID, Long>> topPlayers = getTopPlayers(timeMap);
             if (index < topPlayers.size()) {
                 UUID playerUUID = topPlayers.get(index).getKey();
-                Player player = Bukkit.getPlayer(playerUUID);
-                return player != null ? player.getName() : "Unknown";
+                return playerNames.getOrDefault(playerUUID, "Unknown");
             }
-            return "N/A";
+            return "-/";
         }
 
         private String getTopPlayerActiveTime(int index, HashMap<UUID, Long> timeMap) {
@@ -149,7 +154,7 @@ import java.util.UUID;
                 long timeTicks = topPlayers.get(index).getValue();
                 return formatTime(timeTicks);
             }
-            return "N/A";
+            return "-";
         }
 
     }
