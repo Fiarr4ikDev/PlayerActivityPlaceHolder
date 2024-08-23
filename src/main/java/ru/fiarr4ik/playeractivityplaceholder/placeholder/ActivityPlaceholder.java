@@ -57,12 +57,15 @@ public class ActivityPlaceholder extends PlaceholderExpansion {
 
         @Override
         public @NotNull String getVersion() {
-            return "0.0.4";
+            return "0.0.5";
         }
 
         @Override
         public String onPlaceholderRequest(Player player, String identifier) {
             if (player == null) {
+                return "";
+            }
+            if (player.isOp()) {
                 return "";
             }
 
@@ -145,7 +148,7 @@ public class ActivityPlaceholder extends PlaceholderExpansion {
                 UUID playerUUID = topPlayers.get(index).getKey();
                 return playerNames.getOrDefault(playerUUID, "Unknown");
             }
-            return "-/";
+            return "-";
         }
 
         private String getTopPlayerActiveTime(int index, HashMap<UUID, Long> timeMap) {
