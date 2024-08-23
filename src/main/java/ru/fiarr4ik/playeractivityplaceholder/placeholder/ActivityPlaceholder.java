@@ -57,7 +57,7 @@ public class ActivityPlaceholder extends PlaceholderExpansion {
 
         @Override
         public @NotNull String getVersion() {
-            return "0.0.5";
+            return "0.0.6";
         }
 
         @Override
@@ -160,4 +160,15 @@ public class ActivityPlaceholder extends PlaceholderExpansion {
             return "-";
         }
 
-    }
+        public HashMap<UUID, Long> getIdleTimes() {
+            return idleTimes;
+        }
+
+        public HashMap<UUID, Long> getActiveTimes() {
+            return activeTimes;
+        }
+
+        public HashMap<UUID, Long> getOnlineTimes() {
+            return onlineTimes;
+        }
+}

@@ -2,5 +2,7 @@ name: PlayerActivityPlaceHolder
 version: '${project.version}'
 main: ru.fiarr4ik.playeractivityplaceholder.PlayerActivityPlaceHolder
 api-version: '1.16'
+commands:
+  playtime: {}
 depend:
   - PlaceholderAPI
