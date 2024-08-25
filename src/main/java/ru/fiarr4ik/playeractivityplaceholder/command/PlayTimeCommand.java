@@ -38,10 +38,10 @@ import static ru.fiarr4ik.playeractivityplaceholder.utils.FormatUtils.formatTime
             long idleTimeTicks = idleTimes.getOrDefault(player.getUniqueId(), 0L);
             String idleTimeString = formatTime(idleTimeTicks);
 
-            player.sendMessage(ChatColor.AQUA + sender.getName() + ":");
-            player.sendMessage(ChatColor.GREEN + "  Общее время игры " + onlineTimeString);
-            player.sendMessage(ChatColor.GREEN + "  Активное время " + activeTimeString);
-            player.sendMessage(ChatColor.GREEN + "  Время в афк " + idleTimeString);
+            player.sendMessage(ChatColor.GOLD + sender.getName() + ":");
+            player.sendMessage(ChatColor.AQUA + "Общее время игры " + onlineTimeString);
+            player.sendMessage(ChatColor.AQUA + "Активное время " + activeTimeString);
+            player.sendMessage(ChatColor.AQUA + "Время в афк " + idleTimeString);
 
             return true;
         }
